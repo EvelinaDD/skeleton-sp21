@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author TODO: Evelina Dong
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -106,18 +106,101 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
-    public boolean tilt(Side side) {
-        boolean changed;
-        changed = false;
+    /*
+    private void process_col(int col, int score, boolean changed){
+        boolean[] taken = new boolean[4]; // 记录每个位置上的数是否是合并过的
+        int step_up;
+        for (int i = 3; i >= 0; i--){
+            step_up = 0;
+            Tile t = board.tile(col, i);
+            // 记录往上是否有能合并的tile
+            for (int j = i+1; j <= 3; j++) {
+                if (t != null) {
+                    if (board.tile(col, j) != null){
+                        if (t.value() == board.tile(col, j).value() && taken[j] == false){
+                            taken[j] = true;
+                            board.move(col, j, t);
+                            score += t.value() * 2;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            // 记录往上有几个能走的空白
+            for (int j = i+1; j <= 3; j++) {
+                if (t != null) {
+                    if (board.tile(col, j) == null) {
+                        //above_null[j] = true;
+                        step_up += 1;
+                    } else if (board.tile(col, j) != null) {
+                        continue;
+                    }
+                }
+            }
+            if (step_up != 0){
+                board.move(col, i+step_up, t);
+                changed = true;
+            }
+        }
+    }
 
+     */
+    public boolean tilt(Side side) {
+        boolean changed = false;
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.setViewingPerspective(side);
+        // System.out.println(obj);
+        for (int col = 0; col < 4; col++) {
+            boolean[] taken = new boolean[4]; // 记录每个位置上的数是否是合并过的
+            int step_up;
+            for (int i = 3; i >= 0; i--) {
+                step_up = 0;
+                Tile t = board.tile(col, i);
+                boolean merged = false;
+                // 记录往上是否有能合并的tile
+                for (int j = i + 1; j <= 3; j++) {
+                    if (t != null) {
+                        if (board.tile(col, j) != null) {
+                            if (t.value() == board.tile(col, j).value() && taken[j] == false) {
+                                taken[j] = true;
+                                board.move(col, j, t);
+                                score += t.value() * 2;
+                                changed = true;
+                                merged = true;
+                            }
+                        }
+                    }
+                }
+                // continue;
+                if (merged == false) {
+                    // 记录往上有几个能走的空白
+                    for (int j = i + 1; j <= 3; j++) {
+                        if (t != null) {
+                            if (board.tile(col, j) == null) {
+                                //above_null[j] = true;
+                                step_up += 1;
+                            } else if (board.tile(col, j) != null) {
+                                continue;
+                            }
+                        }
+                    }
+                    if (step_up != 0) {
+                        board.move(col, i + step_up, t);
+                        changed = true;
+                    }
+                }
+            }
+        }
+        board.setViewingPerspective(side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
+
+
         return changed;
     }
 
@@ -138,6 +221,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++){
+            for (int j = 0; j < b.size(); j++){
+                if (b.tile(i, j) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +238,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++){
+            for (int j = 0; j < b.size(); j++){
+                if (b.tile(i, j) != null){
+                    if (b.tile(i, j).value() == MAX_PIECE) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +258,21 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        // 1. There is at least one empty space on the board.
+        // 2. There are two adjacent tiles with the same value.
+        if (emptySpaceExists(b) == true){
+            return true;
+        }
+        for (int i = 0; i < b.size()-1; i++){
+            for (int j = 0; j < b.size()-1; j++){
+                if (b.tile(i, j).value() == b.tile(i+1, j).value() || b.tile(i, j).value() == b.tile(i, j+1).value()){
+                    return true;
+                }
+            }
+        }
+        if (b.tile(3, 3).value()==b.tile(2, 3).value() || b.tile(3,3).value()==b.tile(3,2).value()){
+            return true;
+        }
         return false;
     }
 

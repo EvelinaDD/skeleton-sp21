@@ -1,5 +1,6 @@
 package timingtest;
 import edu.princeton.cs.algs4.Stopwatch;
+import org.checkerframework.checker.units.qual.A;
 
 /**
  * Created by hug.
@@ -23,5 +24,11 @@ public class TimeAList {
 
     public static void timeAListConstruction() {
         // TODO: YOUR CODE HERE
+        Stopwatch sw = new Stopwatch();
+        AList alist = new AList();
+        double timeInSeconds = sw.elapsedTime();
+//        System.out.println("The 50th fibonacci number is " + fib41);
+        System.out.println("Time taken to construct AList: " + timeInSeconds + " seconds.");
+
     }
 }
